@@ -22,6 +22,4 @@ public class CalendarGroupMember extends BaseEntity {
     @Column(nullable = false)
     private Long memberId;
 
-    private Boolean isOwner;
-
 }

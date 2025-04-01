@@ -1,0 +1,196 @@
+package com.kt.team06.calendar.service;
+
+import com.kt.team06.calendar.dto.request.CalendarGroupCreateRequest;
+import com.kt.team06.calendar.dto.request.CalendarGroupUpdateRequest;
+import com.kt.team06.calendar.dto.response.*;
+import com.kt.team06.calendar.entity.Calendar;
+import com.kt.team06.calendar.entity.CalendarGroup;
+import com.kt.team06.calendar.entity.CalendarGroupMember;
+import com.kt.team06.calendar.entity.enums.CalendarGroupType;
+import com.kt.team06.calendar.mapper.CalendarGroupMapper;
+import com.kt.team06.calendar.repository.CalendarGroupMemberRepository;
+import com.kt.team06.calendar.repository.CalendarGroupRepository;
+import com.kt.team06.calendar.repository.FavoriteCalendarRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class CalendarGroupServiceImpl implements CalendarGroupService {
+
+    private final CalendarGroupRepository calendarGroupRepository;
+    private final CalendarGroupMemberRepository calendarGroupMemberRepository;
+    private final FavoriteCalendarRepository favoriteCalendarRepository;
+
+    private final CalendarGroupMapper calendarGroupMapper;
+
+    private final CalendarService calendarService;
+    private final ScheduleService scheduleService;
+
+    @Override
+    public CalendarGroupIdResponse createCalendarGroup(Long memberId, CalendarGroupCreateRequest request) {
+
+        if (calendarGroupRepository.existsByOwnerIdAndName(memberId, request.name()))
+            throw new IllegalArgumentException("같은 이름의 캘린더 그룹이 존재합니다.");
+
+        CalendarGroup group = calendarGroupRepository.save(calendarGroupMapper.toCalendarGroup(memberId, request));
+        CalendarGroupMember calendarGroupOwner = calendarGroupMemberRepository.save(
+                calendarGroupMapper.toCalendarGroupMember(memberId, group)
+        );
+
+        return CalendarGroupIdResponse.of(group.getId());
+    }
+
+    @Override
+    @Transactional
+    public CalendarGroupIdResponse updateCalendarGroupName(
+            Long memberId, Long calendarGroupId, CalendarGroupUpdateRequest request
+    ) {
+
+        CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
+
+        if (validateUpdate(memberId, group))
+            throw new IllegalArgumentException("수정 권한이 없습니다.");
+
+        if (calendarGroupRepository.existsByOwnerIdAndName(memberId, request.name()))
+            throw new IllegalArgumentException("같은 이름의 캘린더 그룹이 존재합니다.");
+
+        group.updateCalendar(request);
+        return CalendarGroupIdResponse.of(group.getId());
+    }
+
+    @Override
+    @Transactional
+    public CalendarGroupIdResponse deleteCalendarGroup(Long memberId, Long calendarGroupId) {
+
+        CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
+
+        if (!group.getOwnerId().equals(memberId))
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+
+        if (group.getType().equals(CalendarGroupType.INDIVIDUAL))
+            throw new IllegalArgumentException("개인 캘린더는 삭제할 수 없습니다.");
+
+        calendarService.deleteAllByGroup(group);
+        calendarGroupRepository.delete(group);
+        return CalendarGroupIdResponse.of(group.getId());
+    }
+
+    @Override
+    @Transactional
+    public CalendarGroupMemberIdResponse addMemberToCalendarGroup(Long memberId, Long calendarGroupId, String email) {
+
+        CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
+        if (!group.getOwnerId().equals(memberId))
+            throw new AccessDeniedException("멤버 추가 권한이 없습니다.");
+
+        validateTeamCalendar(group);
+
+        // TODO: 멤버 서버로 PUB(이메일을 통해 유저 찾기) -> 없다면, 예외 처리
+        Long targetMemberId = 0L;
+
+        if(calendarGroupMemberRepository.findByCalendarGroupAndMemberId(group, targetMemberId).isPresent())
+                throw new IllegalArgumentException("해당 멤버가 이미 팀 캘린더에 소속되어 있습니다.");
+
+        CalendarGroupMember newGroupMember = calendarGroupMemberRepository.save(
+                calendarGroupMapper.toCalendarGroupMember(targetMemberId, group)
+        );
+        group.addMember(newGroupMember);
+
+        return CalendarGroupMemberIdResponse.of(newGroupMember.getId());
+    }
+
+    @Override
+    @Transactional
+    public void removeMemberFromCalendarGroup(Long memberId, Long calendarGroupId, Long targetMemberId) {
+
+        CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
+        validateDeleteMember(memberId, group);
+        validateTeamCalendar(group);
+
+        CalendarGroupMember calendarGroupMember =
+                calendarGroupMemberRepository.findByCalendarGroupAndMemberId(group, targetMemberId)
+                        .orElseThrow(() -> new IllegalArgumentException("삭제하려는 팀 멤버가 존재하지 않습니다."));
+
+        group.removeMember(calendarGroupMember);
+        calendarGroupMemberRepository.delete(calendarGroupMember);
+    }
+
+    @Override
+    @Transactional
+    public void removeMembersFromCalendarGroup(Long memberId, Long calendarGroupId) {
+
+        CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
+        validateDeleteMember(memberId, group);
+        validateTeamCalendar(group);
+
+        List<CalendarGroupMember> groupMembers = group.getMembers();
+        group.removeAllMembers();
+        calendarGroupMemberRepository.deleteAll(groupMembers);
+    }
+
+    @Override
+    public CalendarGroupDetailResponse getCalendarGroupInfo(Long memberId, Long calendarGroupId) {
+
+        CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
+        if(!group.getMembers().stream().map(CalendarGroupMember::getMemberId).toList().contains(memberId)) {
+            throw new AccessDeniedException("해당 캘린더 그룹 조회 권한이 없습니다.");
+        }
+
+        return CalendarGroupDetailResponse.of(
+                group,
+                group.getCalendars().stream()
+                        .map(calendar -> CalendarDetailResponse.of(
+                                calendar,
+                                scheduleService.findByCalendar(calendar)
+                        ))
+                        .toList()
+        );
+    }
+
+    @Override
+    public CalendarGroupListResponse getMyCalendarGroupsInfo(Long memberId) {
+
+        List<CalendarGroup> calendarGroups = calendarGroupMemberRepository.findAllByMemberId(memberId).stream()
+                .map(CalendarGroupMember::getCalendarGroup)
+                .toList();
+
+        List<CalendarGroupSummaryResponse> responses = calendarGroups.stream()
+                .map(group -> {
+                    List<Calendar> calendars = group.getCalendars();
+                    List<CalendarSummaryResponse> calendarSummaryResponses = calendars.stream()
+                            .map(calendar -> CalendarSummaryResponse.of(
+                                    calendar,
+                                    favoriteCalendarRepository.existsByCalendarAndMemberId(calendar, memberId)
+                            ))
+                            .toList();
+
+                    return CalendarGroupSummaryResponse.of(group, calendarSummaryResponses);
+                })
+                .toList();
+
+        return CalendarGroupListResponse.of(responses);
+    }
+
+    private boolean validateUpdate(Long memberId, CalendarGroup group) {
+        List<Long> groupMemberIds = group.getMembers().stream()
+                .map(CalendarGroupMember::getId)
+                .toList();
+
+        return groupMemberIds.contains(memberId);
+    }
+
+    private void validateTeamCalendar(CalendarGroup group) {
+        if (group.getType().equals(CalendarGroupType.INDIVIDUAL))
+            throw new IllegalArgumentException("개인 캘리더는 멤버를 추가/삭제할 수 없습니다.");
+    }
+
+    private void validateDeleteMember(Long memberId, CalendarGroup group) {
+        if (!group.getOwnerId().equals(memberId))
+            throw new AccessDeniedException("멤버 삭제 권한이 없습니다.");
+    }
+}
