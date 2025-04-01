@@ -1,5 +1,6 @@
 package com.kt.team06.calendar.entity;
 
+import com.kt.team06.calendar.dto.request.schedule.ScheduleUpdateRequest;
 import com.kt.team06.calendar.entity.enums.RepeatType;
 import com.kt.team06.calendar.entity.enums.ScheduleStatus;
 import com.kt.team06.calendar.global.BaseEntity;
@@ -44,5 +45,13 @@ public class Schedule extends BaseEntity {
 
     @Column(nullable = false)
     private RepeatType repeatType;
+
+    public void updateSchedule(ScheduleUpdateRequest request) {
+        this.title = request.title();
+        this.description = request.description();
+        this.startAt = request.startAt();
+        this.endAt = request.endAt();
+        this.location = request.location();
+    }
 
 }

@@ -8,5 +8,10 @@ import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
+    default Schedule getSchedule(Long scheduleId) {
+        return findById(scheduleId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일정 id입니다."));
+    }
+
     List<Schedule> findAllByCalendarIn(List<Calendar> calendars);
 }

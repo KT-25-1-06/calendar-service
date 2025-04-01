@@ -105,7 +105,6 @@ public class CalendarServiceImpl implements CalendarService {
         if (!members.stream().map(CalendarGroupMember::getMemberId).toList().contains(memberId)) {
             throw new AccessDeniedException("해당 캘린더 수정/삭제/조회 권한이 없습니다.");
         }
-
     }
 
 }
