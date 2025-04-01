@@ -1,5 +1,6 @@
 package com.kt.team06.calendar.entity;
 
+import com.kt.team06.calendar.dto.request.calendar.CalendarUpdateRequest;
 import com.kt.team06.calendar.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,4 +23,7 @@ public class Calendar extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
+    public void updateCalendar(CalendarUpdateRequest request) {
+        this.name = request.name();
+    }
 }

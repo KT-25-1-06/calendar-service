@@ -1,11 +1,11 @@
 package com.kt.team06.calendar.controller;
 
-import com.kt.team06.calendar.dto.request.CalendarGroupCreateRequest;
-import com.kt.team06.calendar.dto.request.CalendarGroupUpdateRequest;
-import com.kt.team06.calendar.dto.response.CalendarGroupDetailResponse;
-import com.kt.team06.calendar.dto.response.CalendarGroupIdResponse;
-import com.kt.team06.calendar.dto.response.CalendarGroupListResponse;
-import com.kt.team06.calendar.dto.response.CalendarGroupMemberIdResponse;
+import com.kt.team06.calendar.dto.request.group.CalendarGroupCreateRequest;
+import com.kt.team06.calendar.dto.request.group.CalendarGroupUpdateRequest;
+import com.kt.team06.calendar.dto.response.group.CalendarGroupDetailResponse;
+import com.kt.team06.calendar.dto.response.group.CalendarGroupIdResponse;
+import com.kt.team06.calendar.dto.response.group.CalendarGroupListResponse;
+import com.kt.team06.calendar.dto.response.group.CalendarGroupMemberIdResponse;
 import com.kt.team06.calendar.global.ApiResponse;
 import com.kt.team06.calendar.service.CalendarGroupService;
 import lombok.RequiredArgsConstructor;

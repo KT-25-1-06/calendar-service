@@ -1,5 +1,6 @@
-package com.kt.team06.calendar.dto.response;
+package com.kt.team06.calendar.dto.response.calendar;
 
+import com.kt.team06.calendar.dto.response.schedule.ScheduleDetailResponse;
 import com.kt.team06.calendar.entity.Calendar;
 
 import java.util.List;

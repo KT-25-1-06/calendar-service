@@ -1,4 +1,4 @@
-package com.kt.team06.calendar.dto.response;
+package com.kt.team06.calendar.dto.response.group;
 
 public record CalendarGroupIdResponse(
         Long calendarGroupId

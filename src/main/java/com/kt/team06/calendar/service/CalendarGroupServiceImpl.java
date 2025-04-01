@@ -1,14 +1,16 @@
 package com.kt.team06.calendar.service;
 
-import com.kt.team06.calendar.dto.request.CalendarGroupCreateRequest;
-import com.kt.team06.calendar.dto.request.CalendarGroupUpdateRequest;
-import com.kt.team06.calendar.dto.response.*;
+import com.kt.team06.calendar.dto.request.calendar.CalendarCreateRequest;
+import com.kt.team06.calendar.dto.request.group.CalendarGroupCreateRequest;
+import com.kt.team06.calendar.dto.request.group.CalendarGroupUpdateRequest;
+import com.kt.team06.calendar.dto.response.calendar.CalendarDetailResponse;
+import com.kt.team06.calendar.dto.response.calendar.CalendarSummaryResponse;
+import com.kt.team06.calendar.dto.response.group.*;
 import com.kt.team06.calendar.entity.Calendar;
 import com.kt.team06.calendar.entity.CalendarGroup;
 import com.kt.team06.calendar.entity.CalendarGroupMember;
 import com.kt.team06.calendar.entity.enums.CalendarGroupType;
-import com.kt.team06.calendar.mapper.CalendarGroupMapper;
-import com.kt.team06.calendar.repository.CalendarGroupMemberRepository;
+import com.kt.team06.calendar.mapper.EntityMapper;
 import com.kt.team06.calendar.repository.CalendarGroupRepository;
 import com.kt.team06.calendar.repository.FavoriteCalendarRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,24 +25,24 @@ import java.util.List;
 public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     private final CalendarGroupRepository calendarGroupRepository;
-    private final CalendarGroupMemberRepository calendarGroupMemberRepository;
     private final FavoriteCalendarRepository favoriteCalendarRepository;
 
-    private final CalendarGroupMapper calendarGroupMapper;
+    private final EntityMapper calendarGroupMapper;
 
+    private final CalendarGroupMemberService calendarGroupMemberService;
     private final CalendarService calendarService;
     private final ScheduleService scheduleService;
 
     @Override
+    @Transactional
     public CalendarGroupIdResponse createCalendarGroup(Long memberId, CalendarGroupCreateRequest request) {
 
         if (calendarGroupRepository.existsByOwnerIdAndName(memberId, request.name()))
             throw new IllegalArgumentException("같은 이름의 캘린더 그룹이 존재합니다.");
 
         CalendarGroup group = calendarGroupRepository.save(calendarGroupMapper.toCalendarGroup(memberId, request));
-        CalendarGroupMember calendarGroupOwner = calendarGroupMemberRepository.save(
-                calendarGroupMapper.toCalendarGroupMember(memberId, group)
-        );
+        calendarGroupMemberService.createGroupMember(memberId, group);
+        calendarService.createCalendar(memberId, CalendarCreateRequest.of(group.getId(), "기본"));
 
         return CalendarGroupIdResponse.of(group.getId());
     }
@@ -93,12 +95,10 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
         // TODO: 멤버 서버로 PUB(이메일을 통해 유저 찾기) -> 없다면, 예외 처리
         Long targetMemberId = 0L;
 
-        if(calendarGroupMemberRepository.findByCalendarGroupAndMemberId(group, targetMemberId).isPresent())
+        if(calendarGroupMemberService.getGroupMemberByGroupAndMember(group, targetMemberId).isPresent())
                 throw new IllegalArgumentException("해당 멤버가 이미 팀 캘린더에 소속되어 있습니다.");
 
-        CalendarGroupMember newGroupMember = calendarGroupMemberRepository.save(
-                calendarGroupMapper.toCalendarGroupMember(targetMemberId, group)
-        );
+        CalendarGroupMember newGroupMember = calendarGroupMemberService.createGroupMember(memberId, group);
         group.addMember(newGroupMember);
 
         return CalendarGroupMemberIdResponse.of(newGroupMember.getId());
@@ -113,11 +113,11 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
         validateTeamCalendar(group);
 
         CalendarGroupMember calendarGroupMember =
-                calendarGroupMemberRepository.findByCalendarGroupAndMemberId(group, targetMemberId)
+                calendarGroupMemberService.getGroupMemberByGroupAndMember(group, targetMemberId)
                         .orElseThrow(() -> new IllegalArgumentException("삭제하려는 팀 멤버가 존재하지 않습니다."));
 
         group.removeMember(calendarGroupMember);
-        calendarGroupMemberRepository.delete(calendarGroupMember);
+        calendarGroupMemberService.deleteGroupMember(List.of(calendarGroupMember));
     }
 
     @Override
@@ -130,7 +130,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
         List<CalendarGroupMember> groupMembers = group.getMembers();
         group.removeAllMembers();
-        calendarGroupMemberRepository.deleteAll(groupMembers);
+        calendarGroupMemberService.deleteGroupMember(groupMembers);
     }
 
     @Override
@@ -155,9 +155,10 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     @Override
     public CalendarGroupListResponse getMyCalendarGroupsInfo(Long memberId) {
 
-        List<CalendarGroup> calendarGroups = calendarGroupMemberRepository.findAllByMemberId(memberId).stream()
-                .map(CalendarGroupMember::getCalendarGroup)
-                .toList();
+        List<CalendarGroup> calendarGroups =
+                calendarGroupMemberService.getGroupMembersByMember(memberId).stream()
+                        .map(CalendarGroupMember::getCalendarGroup)
+                        .toList();
 
         List<CalendarGroupSummaryResponse> responses = calendarGroups.stream()
                 .map(group -> {
@@ -175,6 +176,8 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
         return CalendarGroupListResponse.of(responses);
     }
+
+    // TODO: 회원가입 시, 개인 캘린더 그룹 생성 + 기본캘린더까지
 
     private boolean validateUpdate(Long memberId, CalendarGroup group) {
         List<Long> groupMemberIds = group.getMembers().stream()

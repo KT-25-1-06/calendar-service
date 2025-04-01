@@ -1,6 +1,5 @@
-package com.kt.team06.calendar.dto.request;
+package com.kt.team06.calendar.dto.request.group;
 
-import com.kt.team06.calendar.entity.CalendarGroup;
 import com.kt.team06.calendar.entity.enums.CalendarGroupType;
 
 public record CalendarGroupCreateRequest(
