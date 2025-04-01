@@ -1,6 +1,6 @@
 package com.kt.team06.calendar.service;
 
-import com.kt.team06.calendar.dto.response.ScheduleDetailResponse;
+import com.kt.team06.calendar.dto.response.schedule.ScheduleDetailResponse;
 import com.kt.team06.calendar.entity.Calendar;
 import com.kt.team06.calendar.entity.Schedule;
 import com.kt.team06.calendar.repository.ScheduleRepository;
@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

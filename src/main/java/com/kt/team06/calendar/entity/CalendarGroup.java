@@ -1,6 +1,6 @@
 package com.kt.team06.calendar.entity;
 
-import com.kt.team06.calendar.dto.request.CalendarGroupUpdateRequest;
+import com.kt.team06.calendar.dto.request.group.CalendarGroupUpdateRequest;
 import com.kt.team06.calendar.entity.enums.CalendarGroupType;
 import com.kt.team06.calendar.global.BaseEntity;
 import jakarta.persistence.*;
@@ -53,6 +53,14 @@ public class CalendarGroup extends BaseEntity {
 
     public void removeAllMembers() {
         members.clear();
+    }
+
+    public void addCalendar(Calendar calendar) {
+        calendars.add(calendar);
+    }
+
+    public void removeCalendar(Calendar calendar) {
+        calendars.remove(calendar);
     }
 
 }
