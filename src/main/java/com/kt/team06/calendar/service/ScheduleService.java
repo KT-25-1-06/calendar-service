@@ -5,6 +5,7 @@ import com.kt.team06.calendar.dto.request.schedule.ScheduleUpdateRequest;
 import com.kt.team06.calendar.dto.response.schedule.ScheduleDetailResponse;
 import com.kt.team06.calendar.dto.response.schedule.ScheduleIdResponse;
 import com.kt.team06.calendar.entity.Calendar;
+import com.kt.team06.calendar.entity.Schedule;
 
 import java.util.List;
 
@@ -15,4 +16,5 @@ public interface ScheduleService {
     ScheduleIdResponse deleteSchedule(Long memberId, Long scheduleId);
     void deleteAllByCalendar(List<Calendar> calendars);
     List<ScheduleDetailResponse> findByCalendar(Calendar calendar);
+    List<Schedule> findAllByCalendar(Calendar calendar);
 }

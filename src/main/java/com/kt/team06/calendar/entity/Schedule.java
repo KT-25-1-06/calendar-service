@@ -21,7 +21,7 @@ public class Schedule extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long writerId;
+    private String writerId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn

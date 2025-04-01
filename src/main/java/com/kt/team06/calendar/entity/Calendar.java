@@ -23,7 +23,13 @@ public class Calendar extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
+    private String subscriptionUrl;
+
     public void updateCalendar(CalendarUpdateRequest request) {
         this.name = request.name();
+    }
+
+    public void updateCalendarSubscription(String subscriptionUrl) {
+        this.subscriptionUrl = subscriptionUrl;
     }
 }

@@ -91,6 +91,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         return schedules.stream().map(ScheduleDetailResponse::of).toList();
     }
 
+    @Override
+    public List<Schedule> findAllByCalendar(Calendar calendar) {
+        return scheduleRepository.findAllByCalendar(calendar);
+    }
+
     public void validateCalendarAccess(Long memberId, CalendarGroup calendarGroup) {
         List<CalendarGroupMember> members = calendarGroup.getMembers();
         if (!members.stream().map(CalendarGroupMember::getMemberId).toList().contains(memberId)) {

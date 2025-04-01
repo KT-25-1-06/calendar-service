@@ -4,13 +4,16 @@ import com.kt.team06.calendar.dto.request.calendar.CalendarCreateRequest;
 import com.kt.team06.calendar.dto.request.calendar.CalendarUpdateRequest;
 import com.kt.team06.calendar.dto.response.calendar.CalendarDetailResponse;
 import com.kt.team06.calendar.dto.response.calendar.CalendarIdResponse;
+import com.kt.team06.calendar.dto.response.calendar.CalendarSubscriptionResponse;
 import com.kt.team06.calendar.entity.Calendar;
 import com.kt.team06.calendar.entity.CalendarGroup;
 import com.kt.team06.calendar.entity.CalendarGroupMember;
+import com.kt.team06.calendar.entity.Schedule;
 import com.kt.team06.calendar.mapper.EntityMapper;
 import com.kt.team06.calendar.repository.CalendarGroupRepository;
 import com.kt.team06.calendar.repository.CalendarRepository;
 import com.kt.team06.calendar.repository.FavoriteCalendarRepository;
+import com.kt.team06.calendar.service.kafka.CalendarIcsProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -27,9 +30,10 @@ public class CalendarServiceImpl implements CalendarService {
     private final FavoriteCalendarRepository favoriteCalendarRepository;
 
     private final ScheduleService scheduleService;
-    private final CalendarSubscriptionService calendarSubscriptionService;
 
     private final EntityMapper entityMapper;
+
+    private final CalendarIcsProducer calendarIcsProducer;
 
 
     @Override
@@ -65,6 +69,10 @@ public class CalendarServiceImpl implements CalendarService {
         validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         scheduleService.deleteAllByCalendar(List.of(calendar));
+
+        // Kafka Pub - ICS 파일 삭제 요청
+        calendarIcsProducer.sendDelete(calendar.getId());
+
         calendarRepository.delete(calendar);
 
         return CalendarIdResponse.of(calendar.getId());
@@ -77,7 +85,11 @@ public class CalendarServiceImpl implements CalendarService {
 
         scheduleService.deleteAllByCalendar(calendars);
         favoriteCalendarRepository.deleteAllByCalendarIn(calendars);
-        calendarSubscriptionService.deleteAllByCalendar(calendars);
+
+        // Kafka Pub - 각 캘린더별 ICS 삭제 요청
+        for (Calendar calendar : calendars) {
+            calendarIcsProducer.sendDelete(calendar.getId());
+        }
 
         calendarRepository.deleteAll(calendars);
     }
@@ -91,6 +103,35 @@ public class CalendarServiceImpl implements CalendarService {
         return CalendarDetailResponse.of(
                 calendar, scheduleService.findByCalendar(calendar)
         );
+    }
+
+    @Override
+    @Transactional
+    public CalendarSubscriptionResponse createCalendarSubscription(Long memberId, Long calendarId) {
+
+        Calendar calendar = calendarRepository.getCalendar(calendarId);
+        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+
+        List<Schedule> schedules = scheduleService.findAllByCalendar(calendar);
+
+        // Kafka Pub
+        calendarIcsProducer.send(calendar, schedules);
+
+        return CalendarSubscriptionResponse.of(calendar);
+    }
+
+    @Override
+    @Transactional
+    public CalendarSubscriptionResponse deleteCalendarSubscription(Long memberId, Long calendarId) {
+
+        Calendar calendar = calendarRepository.getCalendar(calendarId);
+        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+
+        // Kafka Pub - ICS 파일 삭제 요청
+        calendarIcsProducer.sendDelete(calendar.getId());
+
+        calendar.updateCalendarSubscription(null);
+        return CalendarSubscriptionResponse.of(calendar);
     }
 
     public void validateCalendarGroupAccess(Long memberId, CalendarGroup calendarGroup) {

@@ -4,6 +4,7 @@ import com.kt.team06.calendar.dto.request.calendar.CalendarCreateRequest;
 import com.kt.team06.calendar.dto.request.calendar.CalendarUpdateRequest;
 import com.kt.team06.calendar.dto.response.calendar.CalendarDetailResponse;
 import com.kt.team06.calendar.dto.response.calendar.CalendarIdResponse;
+import com.kt.team06.calendar.dto.response.calendar.CalendarSubscriptionResponse;
 import com.kt.team06.calendar.entity.CalendarGroup;
 
 public interface CalendarService {
@@ -13,4 +14,6 @@ public interface CalendarService {
     CalendarIdResponse deleteCalendar(Long memberId, Long calendarId);
     void deleteAllByGroup(CalendarGroup calendarGroup);
     CalendarDetailResponse getCalendarInfo(Long memberId, Long calendarId);
+    CalendarSubscriptionResponse createCalendarSubscription(Long memberId, Long calendarId);
+    CalendarSubscriptionResponse deleteCalendarSubscription(Long memberId, Long calendarId);
 }

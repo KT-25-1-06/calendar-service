@@ -4,6 +4,7 @@ import com.kt.team06.calendar.dto.request.calendar.CalendarCreateRequest;
 import com.kt.team06.calendar.dto.request.calendar.CalendarUpdateRequest;
 import com.kt.team06.calendar.dto.response.calendar.CalendarDetailResponse;
 import com.kt.team06.calendar.dto.response.calendar.CalendarIdResponse;
+import com.kt.team06.calendar.dto.response.calendar.CalendarSubscriptionResponse;
 import com.kt.team06.calendar.global.ApiResponse;
 import com.kt.team06.calendar.service.CalendarService;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,26 @@ public class CalendarController {
         @PathVariable Long calendarId
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarService.getCalendarInfo(memberId, calendarId)));
+    }
+
+    @PostMapping("/{calendarId}/subscription")
+    public ResponseEntity<ApiResponse<CalendarSubscriptionResponse>> createCalendarSubscription(
+            @RequestHeader Long memberId,
+            @PathVariable Long calendarId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                calendarService.createCalendarSubscription(memberId, calendarId)
+        ));
+    }
+
+    @DeleteMapping("/{calendarId}/subscription")
+    public ResponseEntity<ApiResponse<CalendarSubscriptionResponse>> deleteCalendarSubscription(
+            @RequestHeader Long memberId,
+            @PathVariable Long calendarId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                calendarService.deleteCalendarSubscription(memberId, calendarId)
+        ));
     }
 
     // TODO: 캘린더 즐겨찾기 추가/삭제 API

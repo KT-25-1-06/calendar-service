@@ -1,6 +1,7 @@
 package com.kt.team06.calendar.repository;
 
 import com.kt.team06.calendar.entity.Calendar;
+import com.kt.team06.calendar.entity.CalendarGroup;
 import com.kt.team06.calendar.entity.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,4 +15,5 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     }
 
     List<Schedule> findAllByCalendarIn(List<Calendar> calendars);
+    List<Schedule> findAllByCalendar(Calendar calendar);
 }

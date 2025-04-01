@@ -31,6 +31,7 @@ public class EntityMapper {
         return Calendar.builder()
                 .calendarGroup(calendarGroup)
                 .name(name)
+                .subscriptionUrl(null)
                 .build();
     }
 
