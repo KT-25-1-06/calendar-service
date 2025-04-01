@@ -67,6 +67,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleIdResponse deleteSchedule(String memberId, Long scheduleId) {
 
         Schedule schedule = scheduleRepository.getSchedule(scheduleId);
+        validateScheduleAccess(memberId, schedule);
 
         // TODO: ICS 서비스로 파일 삭제 PUB
 

@@ -23,7 +23,7 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false)
     private String writerId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Calendar calendar;
 
