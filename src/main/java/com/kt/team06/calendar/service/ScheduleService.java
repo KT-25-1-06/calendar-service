@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface ScheduleService {
 
-    ScheduleIdResponse createSchedule(Long memberId, Long calendarId, ScheduleCreateRequest request);
-    ScheduleIdResponse updateSchedule(Long memberId, Long scheduleId, ScheduleUpdateRequest request);
-    ScheduleIdResponse deleteSchedule(Long memberId, Long scheduleId);
+    ScheduleIdResponse createSchedule(String memberId, Long calendarId, ScheduleCreateRequest request);
+    ScheduleIdResponse updateSchedule(String memberId, Long scheduleId, ScheduleUpdateRequest request);
+    ScheduleIdResponse deleteSchedule(String memberId, Long scheduleId);
     void deleteAllByCalendar(List<Calendar> calendars);
     List<ScheduleDetailResponse> findByCalendar(Calendar calendar);
     List<Schedule> findAllByCalendar(Calendar calendar);

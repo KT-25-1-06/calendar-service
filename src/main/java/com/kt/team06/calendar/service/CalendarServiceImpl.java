@@ -38,7 +38,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public CalendarIdResponse createCalendar(Long memberId, CalendarCreateRequest request) {
+    public CalendarIdResponse createCalendar(String memberId, CalendarCreateRequest request) {
 
         CalendarGroup calendarGroup = calendarGroupRepository.getCalendarGroup(request.calendarGroupId());
         validateCalendarGroupAccess(memberId, calendarGroup);
@@ -51,7 +51,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public CalendarIdResponse updateCalendarName(Long memberId, Long calendarId, CalendarUpdateRequest request) {
+    public CalendarIdResponse updateCalendarName(String memberId, Long calendarId, CalendarUpdateRequest request) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
         validateCalendarAccess(memberId, calendar.getCalendarGroup());
@@ -63,12 +63,13 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public CalendarIdResponse deleteCalendar(Long memberId, Long calendarId) {
+    public CalendarIdResponse deleteCalendar(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
         validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         scheduleService.deleteAllByCalendar(List.of(calendar));
+        calendar.getCalendarGroup().removeCalendar(calendar);
 
         // Kafka Pub - ICS 파일 삭제 요청
         calendarIcsProducer.sendDelete(calendar.getId());
@@ -88,14 +89,15 @@ public class CalendarServiceImpl implements CalendarService {
 
         // Kafka Pub - 각 캘린더별 ICS 삭제 요청
         for (Calendar calendar : calendars) {
-            calendarIcsProducer.sendDelete(calendar.getId());
+            if (calendar.getSubscriptionUrl() != null)
+                calendarIcsProducer.sendDelete(calendar.getId());
         }
 
         calendarRepository.deleteAll(calendars);
     }
 
     @Override
-    public CalendarDetailResponse getCalendarInfo(Long memberId, Long calendarId) {
+    public CalendarDetailResponse getCalendarInfo(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
         validateCalendarAccess(memberId, calendar.getCalendarGroup());
@@ -107,7 +109,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public CalendarSubscriptionResponse createCalendarSubscription(Long memberId, Long calendarId) {
+    public CalendarSubscriptionResponse createCalendarSubscription(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
         validateCalendarAccess(memberId, calendar.getCalendarGroup());
@@ -122,7 +124,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public CalendarSubscriptionResponse deleteCalendarSubscription(Long memberId, Long calendarId) {
+    public CalendarSubscriptionResponse deleteCalendarSubscription(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
         validateCalendarAccess(memberId, calendar.getCalendarGroup());
@@ -134,14 +136,14 @@ public class CalendarServiceImpl implements CalendarService {
         return CalendarSubscriptionResponse.of(calendar);
     }
 
-    public void validateCalendarGroupAccess(Long memberId, CalendarGroup calendarGroup) {
+    public void validateCalendarGroupAccess(String memberId, CalendarGroup calendarGroup) {
         List<CalendarGroupMember> members = calendarGroup.getMembers();
         if (!members.stream().map(CalendarGroupMember::getMemberId).toList().contains(memberId)) {
             throw new AccessDeniedException("해당 캘린더 그룹에 캘린더 추가 권한이 없습니다.");
         }
     }
 
-    public void validateCalendarAccess(Long memberId, CalendarGroup calendarGroup) {
+    public void validateCalendarAccess(String memberId, CalendarGroup calendarGroup) {
         List<CalendarGroupMember> members = calendarGroup.getMembers();
         if (!members.stream().map(CalendarGroupMember::getMemberId).toList().contains(memberId)) {
             throw new AccessDeniedException("해당 캘린더 수정/삭제/조회 권한이 없습니다.");

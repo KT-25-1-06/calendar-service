@@ -20,10 +20,12 @@ public class CalendarGroupMemberServiceImpl implements CalendarGroupMemberServic
 
 
     @Override
-    public CalendarGroupMember createGroupMember(Long memberId, CalendarGroup group) {
-        return calendarGroupMemberRepository.save(
-                entityMapper.toCalendarGroupMember(memberId, group)
-        );
+    public CalendarGroupMember createGroupMember(String memberId, CalendarGroup group) {
+        CalendarGroupMember calendarGroupMember =
+                calendarGroupMemberRepository.save(entityMapper.toCalendarGroupMember(memberId, group));
+
+        group.addMember(calendarGroupMember);
+        return calendarGroupMember;
     }
 
     @Override
@@ -32,12 +34,12 @@ public class CalendarGroupMemberServiceImpl implements CalendarGroupMemberServic
     }
 
     @Override
-    public List<CalendarGroupMember> getGroupMembersByMember(Long memberId) {
+    public List<CalendarGroupMember> getGroupMembersByMember(String memberId) {
         return  calendarGroupMemberRepository.findAllByMemberId(memberId);
     }
 
     @Override
-    public Optional<CalendarGroupMember> getGroupMemberByGroupAndMember(CalendarGroup group, Long targetMemberId) {
+    public Optional<CalendarGroupMember> getGroupMemberByGroupAndMember(CalendarGroup group, String targetMemberId) {
         return calendarGroupMemberRepository.findByCalendarGroupAndMemberId(group, targetMemberId);
     }
 

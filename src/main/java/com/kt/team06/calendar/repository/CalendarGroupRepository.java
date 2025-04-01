@@ -9,5 +9,5 @@ public interface CalendarGroupRepository extends JpaRepository<CalendarGroup, Lo
         return findById(calendarGroupId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 캘린더그룹 id입니다."));
     }
-    boolean existsByOwnerIdAndName(Long ownerId, String name);
+    boolean existsByOwnerIdAndName(String ownerId, String name);
 }

@@ -16,7 +16,7 @@ public class FavoriteCalendar extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long memberId;
+    private String memberId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn

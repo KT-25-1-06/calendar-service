@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EntityMapper {
 
-    public CalendarGroup toCalendarGroup(Long memberId, CalendarGroupCreateRequest request) {
+    public CalendarGroup toCalendarGroup(String memberId, CalendarGroupCreateRequest request) {
         return CalendarGroup.builder()
                 .ownerId(memberId)
                 .name(request.name())
@@ -20,7 +20,7 @@ public class EntityMapper {
                 .build();
     }
 
-    public CalendarGroupMember toCalendarGroupMember(Long memberId, CalendarGroup calendarGroup) {
+    public CalendarGroupMember toCalendarGroupMember(String memberId, CalendarGroup calendarGroup) {
         return CalendarGroupMember.builder()
                 .calendarGroup(calendarGroup)
                 .memberId(memberId)
@@ -35,7 +35,7 @@ public class EntityMapper {
                 .build();
     }
 
-    public Schedule toSchedule(Long memberId, ScheduleCreateRequest request, Calendar calendar) {
+    public Schedule toSchedule(String memberId, ScheduleCreateRequest request, Calendar calendar) {
         return Schedule.builder()
                 .title(request.title())
                 .description(request.description())

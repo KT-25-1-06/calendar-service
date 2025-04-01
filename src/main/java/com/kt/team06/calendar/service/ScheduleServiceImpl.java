@@ -31,7 +31,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     public ScheduleIdResponse createSchedule(
-            Long memberId, Long calendarId, ScheduleCreateRequest request
+            String memberId, Long calendarId, ScheduleCreateRequest request
     ) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
@@ -49,7 +49,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     public ScheduleIdResponse updateSchedule(
-            Long memberId, Long scheduleId, ScheduleUpdateRequest request
+            String memberId, Long scheduleId, ScheduleUpdateRequest request
     ) {
 
         Schedule schedule = scheduleRepository.getSchedule(scheduleId);
@@ -64,7 +64,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     @Transactional
-    public ScheduleIdResponse deleteSchedule(Long memberId, Long scheduleId) {
+    public ScheduleIdResponse deleteSchedule(String memberId, Long scheduleId) {
 
         Schedule schedule = scheduleRepository.getSchedule(scheduleId);
 
@@ -96,14 +96,14 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleRepository.findAllByCalendar(calendar);
     }
 
-    public void validateCalendarAccess(Long memberId, CalendarGroup calendarGroup) {
+    public void validateCalendarAccess(String memberId, CalendarGroup calendarGroup) {
         List<CalendarGroupMember> members = calendarGroup.getMembers();
         if (!members.stream().map(CalendarGroupMember::getMemberId).toList().contains(memberId)) {
             throw new AccessDeniedException("해당 캘린더 수정/삭제/조회 권한이 없습니다.");
         }
     }
 
-    public void validateScheduleAccess(Long memberId, Schedule schedule) {
+    public void validateScheduleAccess(String memberId, Schedule schedule) {
         if (!schedule.getWriterId().equals(memberId)) {
             throw new AccessDeniedException("해당 일정의 수정/삭제 권한이 없습니다.");
         }

@@ -21,7 +21,7 @@ public class CalendarGroupController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CalendarGroupIdResponse>> createCalendarGroup(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @RequestBody CalendarGroupCreateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarGroupService.createCalendarGroup(memberId, request)));
@@ -29,7 +29,7 @@ public class CalendarGroupController {
 
     @PutMapping("/{calendarGroupId}")
     public ResponseEntity<ApiResponse<CalendarGroupIdResponse>> updateCalendarGroupName(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarGroupId,
         @RequestBody CalendarGroupUpdateRequest request
     ) {
@@ -40,7 +40,7 @@ public class CalendarGroupController {
 
     @DeleteMapping("/{calendarGroupId}")
     public ResponseEntity<ApiResponse<CalendarGroupIdResponse>> deleteCalendarGroup(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarGroupId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -50,7 +50,7 @@ public class CalendarGroupController {
 
     @PostMapping("/{calendarGroupId}/members/{email}")
     public ResponseEntity<ApiResponse<CalendarGroupMemberIdResponse>> addMemberToCalendarGroup(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarGroupId,
         @PathVariable String email
     ) {
@@ -61,9 +61,9 @@ public class CalendarGroupController {
 
     @DeleteMapping("/{calendarGroupId}/members/{targetMemberId}")
     public ResponseEntity<ApiResponse<Void>> removeMemberFromCalendarGroup(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarGroupId,
-        @PathVariable Long targetMemberId
+        @PathVariable String targetMemberId
     ) {
         calendarGroupService.removeMemberFromCalendarGroup(memberId, calendarGroupId, targetMemberId);
         return ResponseEntity.ok(ApiResponse.success(null));
@@ -71,7 +71,7 @@ public class CalendarGroupController {
 
     @DeleteMapping("/{calendarGroupId}/members")
     public ResponseEntity<ApiResponse<Void>> removeMembersFromCalendarGroup(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarGroupId
     ) {
         calendarGroupService.removeMembersFromCalendarGroup(memberId, calendarGroupId);
@@ -80,7 +80,7 @@ public class CalendarGroupController {
 
     @GetMapping("/{calendarGroupId}")
     public ResponseEntity<ApiResponse<CalendarGroupDetailResponse>> getCalendarGroupInfo(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarGroupId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -90,7 +90,7 @@ public class CalendarGroupController {
 
     @GetMapping("/mine")
     public ResponseEntity<ApiResponse<CalendarGroupListResponse>> getMyCalendarGroupsInfo(
-        @RequestHeader Long memberId
+        @RequestHeader String memberId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 calendarGroupService.getMyCalendarGroupsInfo(memberId)
