@@ -11,6 +11,7 @@ public interface CalendarService {
 
     CalendarIdResponse createCalendar(String memberId, CalendarCreateRequest request);
     CalendarIdResponse updateCalendarName(String memberId, Long calendarId, CalendarUpdateRequest request);
+    void updateCalendarSubscriptionUrl(Long calendarId, String url);
     CalendarIdResponse deleteCalendar(String memberId, Long calendarId);
     void deleteAllByGroup(CalendarGroup calendarGroup);
     CalendarDetailResponse getCalendarInfo(String memberId, Long calendarId);
