@@ -4,6 +4,7 @@ import com.kt.team06.calendar.dto.request.calendar.CalendarCreateRequest;
 import com.kt.team06.calendar.dto.request.calendar.CalendarUpdateRequest;
 import com.kt.team06.calendar.dto.response.calendar.CalendarDetailResponse;
 import com.kt.team06.calendar.dto.response.calendar.CalendarIdResponse;
+import com.kt.team06.calendar.dto.response.calendar.CalendarSubscriptionResponse;
 import com.kt.team06.calendar.global.ApiResponse;
 import com.kt.team06.calendar.service.CalendarService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class CalendarController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CalendarIdResponse>> createCalendar(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @RequestBody CalendarCreateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarService.createCalendar(memberId, request)));
@@ -26,7 +27,7 @@ public class CalendarController {
 
     @PutMapping("/{calendarId}")
     public ResponseEntity<ApiResponse<CalendarIdResponse>> updateCalendar(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarId,
         @RequestBody CalendarUpdateRequest request
     ) {
@@ -37,7 +38,7 @@ public class CalendarController {
 
     @DeleteMapping("/{calendarId}")
     public ResponseEntity<ApiResponse<CalendarIdResponse>> deleteCalendar(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarId
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarService.deleteCalendar(memberId, calendarId)));
@@ -45,10 +46,30 @@ public class CalendarController {
 
     @GetMapping("/{calendarId}")
     public ResponseEntity<ApiResponse<CalendarDetailResponse>> getCalendarInfo(
-        @RequestHeader Long memberId,
+        @RequestHeader String memberId,
         @PathVariable Long calendarId
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarService.getCalendarInfo(memberId, calendarId)));
+    }
+
+    @PostMapping("/{calendarId}/subscription")
+    public ResponseEntity<ApiResponse<CalendarSubscriptionResponse>> createCalendarSubscription(
+            @RequestHeader String memberId,
+            @PathVariable Long calendarId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                calendarService.createCalendarSubscription(memberId, calendarId)
+        ));
+    }
+
+    @DeleteMapping("/{calendarId}/subscription")
+    public ResponseEntity<ApiResponse<CalendarSubscriptionResponse>> deleteCalendarSubscription(
+            @RequestHeader String memberId,
+            @PathVariable Long calendarId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                calendarService.deleteCalendarSubscription(memberId, calendarId)
+        ));
     }
 
     // TODO: 캘린더 즐겨찾기 추가/삭제 API

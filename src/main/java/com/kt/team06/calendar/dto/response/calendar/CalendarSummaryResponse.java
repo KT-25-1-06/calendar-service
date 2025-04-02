@@ -3,11 +3,11 @@ package com.kt.team06.calendar.dto.response.calendar;
 import com.kt.team06.calendar.entity.Calendar;
 
 public record CalendarSummaryResponse(
-        Long calendarId, String name, Boolean isFavorite
+        Long calendarId, String name, String subscriptionUrl, Boolean isFavorite
 ) {
     public static CalendarSummaryResponse of(Calendar calendar, Boolean isFavorite) {
         return new CalendarSummaryResponse(
-                calendar.getId(), calendar.getName(), isFavorite
+                calendar.getId(), calendar.getName(), calendar.getSubscriptionUrl(), isFavorite
         );
     }
 }

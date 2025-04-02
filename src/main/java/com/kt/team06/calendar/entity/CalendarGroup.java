@@ -23,7 +23,7 @@ public class CalendarGroup extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long ownerId;
+    private String ownerId;
 
     @Column(nullable = false)
     private String name;
@@ -31,11 +31,11 @@ public class CalendarGroup extends BaseEntity {
     @Column(nullable = false)
     private CalendarGroupType type;
 
-    @OneToMany(mappedBy = "calendar_group")
+    @OneToMany(mappedBy = "calendarGroup")
     @Builder.Default
     private List<Calendar> calendars = new ArrayList<>();
 
-    @OneToMany(mappedBy = "calendar_group", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "calendarGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @Builder.Default
     private List<CalendarGroupMember> members = new ArrayList<>();
 

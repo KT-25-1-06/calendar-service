@@ -6,7 +6,7 @@ import com.kt.team06.calendar.entity.Calendar;
 import java.util.List;
 
 public record CalendarDetailResponse(
-        Long calendarId, String name, List<ScheduleDetailResponse> schedules
+        Long calendarId, String name, String subscriptionUrl, List<ScheduleDetailResponse> schedules
 ) {
 
     public static CalendarDetailResponse of(
@@ -15,6 +15,7 @@ public record CalendarDetailResponse(
         return new CalendarDetailResponse(
                 calendar.getId(),
                 calendar.getName(),
+                calendar.getSubscriptionUrl(),
                 schedules
         );
     }

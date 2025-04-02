@@ -20,6 +20,6 @@ public class CalendarGroupMember extends BaseEntity {
     private CalendarGroup calendarGroup;
 
     @Column(nullable = false)
-    private Long memberId;
+    private String memberId;
 
 }

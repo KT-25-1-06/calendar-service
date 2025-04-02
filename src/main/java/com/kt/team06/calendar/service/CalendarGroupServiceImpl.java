@@ -35,7 +35,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     @Override
     @Transactional
-    public CalendarGroupIdResponse createCalendarGroup(Long memberId, CalendarGroupCreateRequest request) {
+    public CalendarGroupIdResponse createCalendarGroup(String memberId, CalendarGroupCreateRequest request) {
 
         if (calendarGroupRepository.existsByOwnerIdAndName(memberId, request.name()))
             throw new IllegalArgumentException("같은 이름의 캘린더 그룹이 존재합니다.");
@@ -50,7 +50,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     @Override
     @Transactional
     public CalendarGroupIdResponse updateCalendarGroupName(
-            Long memberId, Long calendarGroupId, CalendarGroupUpdateRequest request
+            String memberId, Long calendarGroupId, CalendarGroupUpdateRequest request
     ) {
 
         CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
@@ -67,7 +67,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     @Override
     @Transactional
-    public CalendarGroupIdResponse deleteCalendarGroup(Long memberId, Long calendarGroupId) {
+    public CalendarGroupIdResponse deleteCalendarGroup(String memberId, Long calendarGroupId) {
 
         CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
 
@@ -84,7 +84,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     @Override
     @Transactional
-    public CalendarGroupMemberIdResponse addMemberToCalendarGroup(Long memberId, Long calendarGroupId, String email) {
+    public CalendarGroupMemberIdResponse addMemberToCalendarGroup(String memberId, Long calendarGroupId, String email) {
 
         CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
         if (!group.getOwnerId().equals(memberId))
@@ -93,12 +93,12 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
         validateTeamCalendar(group);
 
         // TODO: 멤버 서버로 PUB(이메일을 통해 유저 찾기) -> 없다면, 예외 처리
-        Long targetMemberId = 0L;
+        String targetMemberId = "test";
 
         if(calendarGroupMemberService.getGroupMemberByGroupAndMember(group, targetMemberId).isPresent())
                 throw new IllegalArgumentException("해당 멤버가 이미 팀 캘린더에 소속되어 있습니다.");
 
-        CalendarGroupMember newGroupMember = calendarGroupMemberService.createGroupMember(memberId, group);
+        CalendarGroupMember newGroupMember = calendarGroupMemberService.createGroupMember(targetMemberId, group);
         group.addMember(newGroupMember);
 
         return CalendarGroupMemberIdResponse.of(newGroupMember.getId());
@@ -106,7 +106,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     @Override
     @Transactional
-    public void removeMemberFromCalendarGroup(Long memberId, Long calendarGroupId, Long targetMemberId) {
+    public void removeMemberFromCalendarGroup(String memberId, Long calendarGroupId, String targetMemberId) {
 
         CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
         validateDeleteMember(memberId, group);
@@ -122,7 +122,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     @Override
     @Transactional
-    public void removeMembersFromCalendarGroup(Long memberId, Long calendarGroupId) {
+    public void removeMembersFromCalendarGroup(String memberId, Long calendarGroupId) {
 
         CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
         validateDeleteMember(memberId, group);
@@ -134,7 +134,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     }
 
     @Override
-    public CalendarGroupDetailResponse getCalendarGroupInfo(Long memberId, Long calendarGroupId) {
+    public CalendarGroupDetailResponse getCalendarGroupInfo(String memberId, Long calendarGroupId) {
 
         CalendarGroup group = calendarGroupRepository.getCalendarGroup(calendarGroupId);
         if(!group.getMembers().stream().map(CalendarGroupMember::getMemberId).toList().contains(memberId)) {
@@ -153,7 +153,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
     }
 
     @Override
-    public CalendarGroupListResponse getMyCalendarGroupsInfo(Long memberId) {
+    public CalendarGroupListResponse getMyCalendarGroupsInfo(String memberId) {
 
         List<CalendarGroup> calendarGroups =
                 calendarGroupMemberService.getGroupMembersByMember(memberId).stream()
@@ -179,7 +179,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
     // TODO: 회원가입 시, 개인 캘린더 그룹 생성 + 기본캘린더까지
 
-    private boolean validateUpdate(Long memberId, CalendarGroup group) {
+    private boolean validateUpdate(String memberId, CalendarGroup group) {
         List<Long> groupMemberIds = group.getMembers().stream()
                 .map(CalendarGroupMember::getId)
                 .toList();
@@ -192,7 +192,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
             throw new IllegalArgumentException("개인 캘리더는 멤버를 추가/삭제할 수 없습니다.");
     }
 
-    private void validateDeleteMember(Long memberId, CalendarGroup group) {
+    private void validateDeleteMember(String memberId, CalendarGroup group) {
         if (!group.getOwnerId().equals(memberId))
             throw new AccessDeniedException("멤버 삭제 권한이 없습니다.");
     }

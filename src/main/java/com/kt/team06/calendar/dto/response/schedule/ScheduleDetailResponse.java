@@ -1,12 +1,13 @@
 package com.kt.team06.calendar.dto.response.schedule;
 
 import com.kt.team06.calendar.entity.Schedule;
+import com.kt.team06.calendar.entity.enums.RepeatType;
 
 import java.time.LocalDateTime;
 
 public record ScheduleDetailResponse(
-        Long scheduleId, String title, String description,
-        LocalDateTime startAt, LocalDateTime endAt, String location
+        Long scheduleId, String title, String description, LocalDateTime startAt,
+        LocalDateTime endAt, String location, String repeatType
 ) {
 
     public static ScheduleDetailResponse of(Schedule schedule) {
@@ -16,7 +17,8 @@ public record ScheduleDetailResponse(
                 schedule.getDescription(),
                 schedule.getStartAt(),
                 schedule.getEndAt(),
-                schedule.getLocation()
+                schedule.getLocation(),
+                schedule.getRepeatType().getToKorean()
         );
     }
 }

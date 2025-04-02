@@ -9,5 +9,5 @@ import java.util.List;
 public interface FavoriteCalendarRepository extends JpaRepository<FavoriteCalendar, Long> {
 
     void deleteAllByCalendarIn(List<Calendar> calendars) ;
-    boolean existsByCalendarAndMemberId(Calendar calendar, Long memberId);
+    boolean existsByCalendarAndMemberId(Calendar calendar, String memberId);
 }

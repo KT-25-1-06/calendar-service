@@ -9,19 +9,19 @@ import com.kt.team06.calendar.dto.response.group.CalendarGroupMemberIdResponse;
 
 public interface CalendarGroupService {
 
-    CalendarGroupIdResponse createCalendarGroup(Long memberId, CalendarGroupCreateRequest request);
+    CalendarGroupIdResponse createCalendarGroup(String memberId, CalendarGroupCreateRequest request);
     CalendarGroupIdResponse updateCalendarGroupName(
-            Long memberId, Long calendarGroupId, CalendarGroupUpdateRequest request
+            String memberId, Long calendarGroupId, CalendarGroupUpdateRequest request
     );
-    CalendarGroupIdResponse deleteCalendarGroup(Long memberId, Long calendarGroupId);
+    CalendarGroupIdResponse deleteCalendarGroup(String memberId, Long calendarGroupId);
     CalendarGroupMemberIdResponse addMemberToCalendarGroup(
-            Long memberId, Long calendarGroupId, String email
+            String memberId, Long calendarGroupId, String email
     );
     void removeMemberFromCalendarGroup(
-            Long memberId, Long calendarGroupId, Long targetMemberId
+            String memberId, Long calendarGroupId, String targetMemberId
     );
-    void removeMembersFromCalendarGroup(Long memberId, Long calendarGroupId);
-    CalendarGroupDetailResponse getCalendarGroupInfo(Long memberId, Long calendarGroupId);
-    CalendarGroupListResponse getMyCalendarGroupsInfo(Long memberId);
+    void removeMembersFromCalendarGroup(String memberId, Long calendarGroupId);
+    CalendarGroupDetailResponse getCalendarGroupInfo(String memberId, Long calendarGroupId);
+    CalendarGroupListResponse getMyCalendarGroupsInfo(String memberId);
 
 }

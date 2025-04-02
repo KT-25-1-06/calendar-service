@@ -1,15 +1,18 @@
 package com.kt.team06.calendar.mapper;
 
 import com.kt.team06.calendar.dto.request.group.CalendarGroupCreateRequest;
+import com.kt.team06.calendar.dto.request.schedule.ScheduleCreateRequest;
 import com.kt.team06.calendar.entity.Calendar;
 import com.kt.team06.calendar.entity.CalendarGroup;
 import com.kt.team06.calendar.entity.CalendarGroupMember;
+import com.kt.team06.calendar.entity.Schedule;
+import com.kt.team06.calendar.entity.enums.ScheduleStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EntityMapper {
 
-    public CalendarGroup toCalendarGroup(Long memberId, CalendarGroupCreateRequest request) {
+    public CalendarGroup toCalendarGroup(String memberId, CalendarGroupCreateRequest request) {
         return CalendarGroup.builder()
                 .ownerId(memberId)
                 .name(request.name())
@@ -17,7 +20,7 @@ public class EntityMapper {
                 .build();
     }
 
-    public CalendarGroupMember toCalendarGroupMember(Long memberId, CalendarGroup calendarGroup) {
+    public CalendarGroupMember toCalendarGroupMember(String memberId, CalendarGroup calendarGroup) {
         return CalendarGroupMember.builder()
                 .calendarGroup(calendarGroup)
                 .memberId(memberId)
@@ -28,6 +31,21 @@ public class EntityMapper {
         return Calendar.builder()
                 .calendarGroup(calendarGroup)
                 .name(name)
+                .subscriptionUrl(null)
+                .build();
+    }
+
+    public Schedule toSchedule(String memberId, ScheduleCreateRequest request, Calendar calendar) {
+        return Schedule.builder()
+                .title(request.title())
+                .description(request.description())
+                .startAt(request.startAt())
+                .endAt(request.endAt())
+                .location(request.location())
+                .repeatType(request.repeatType())
+                .calendar(calendar)
+                .writerId(memberId)
+                .status(ScheduleStatus.UPCOMING)
                 .build();
     }
 }
