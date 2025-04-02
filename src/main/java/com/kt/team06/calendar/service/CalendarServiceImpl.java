@@ -49,7 +49,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CalendarIdResponse createCalendar(String memberId, CalendarCreateRequest request) {
 
         CalendarGroup calendarGroup = calendarGroupRepository.getCalendarGroup(request.calendarGroupId());
-        validateCalendarGroupAccess(memberId, calendarGroup);
+//        validateCalendarGroupAccess(memberId, calendarGroup);
 
         Calendar newCalendar = calendarRepository.save(entityMapper.toCalendar(calendarGroup, request.name()));
         calendarGroup.addCalendar(newCalendar);
@@ -62,7 +62,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CalendarIdResponse updateCalendarName(String memberId, Long calendarId, CalendarUpdateRequest request) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
-        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+//        validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         calendar.updateCalendar(request);
 
@@ -82,7 +82,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CalendarIdResponse deleteCalendar(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
-        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+//        validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         scheduleService.deleteAllByCalendar(List.of(calendar));
         calendar.getCalendarGroup().removeCalendar(calendar);
@@ -121,7 +121,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CalendarDetailResponse getCalendarInfo(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
-        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+//        validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         return CalendarDetailResponse.of(
                 calendar, scheduleService.findByCalendar(calendar)
@@ -133,7 +133,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CalendarSubscriptionResponse createCalendarSubscription(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
-        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+//        validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         List<Schedule> schedules = scheduleService.findAllByCalendar(calendar);
 
@@ -153,7 +153,7 @@ public class CalendarServiceImpl implements CalendarService {
     public CalendarSubscriptionResponse deleteCalendarSubscription(String memberId, Long calendarId) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
-        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+//        validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         kafkaProducerService.send(
                 calendarSubscriptionDeleted,

@@ -35,7 +35,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     ) {
 
         Calendar calendar = calendarRepository.getCalendar(calendarId);
-        validateCalendarAccess(memberId, calendar.getCalendarGroup());
+//        validateCalendarAccess(memberId, calendar.getCalendarGroup());
 
         Schedule newSchedule = scheduleRepository.save(
                 entityMapper.toSchedule(memberId, request, calendar)
