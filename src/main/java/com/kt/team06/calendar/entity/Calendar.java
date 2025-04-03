@@ -25,6 +25,8 @@ public class Calendar extends BaseEntity {
 
     private String subscriptionUrl;
 
+    private String color;
+
     public void updateCalendar(CalendarUpdateRequest request) {
         this.name = request.name();
     }

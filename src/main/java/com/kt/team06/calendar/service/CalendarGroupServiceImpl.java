@@ -42,7 +42,7 @@ public class CalendarGroupServiceImpl implements CalendarGroupService {
 
         CalendarGroup group = calendarGroupRepository.save(calendarGroupMapper.toCalendarGroup(memberId, request));
         calendarGroupMemberService.createGroupMember(memberId, group);
-        calendarService.createCalendar(memberId, CalendarCreateRequest.of(group.getId(), "기본"));
+        calendarService.createCalendar(memberId, CalendarCreateRequest.of(group.getId(), "기본", "red"));
 
         return CalendarGroupIdResponse.of(group.getId());
     }

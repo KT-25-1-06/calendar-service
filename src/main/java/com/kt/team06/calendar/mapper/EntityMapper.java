@@ -27,11 +27,12 @@ public class EntityMapper {
                 .build();
     }
 
-    public Calendar toCalendar(CalendarGroup calendarGroup, String name) {
+    public Calendar toCalendar(CalendarGroup calendarGroup, String name, String color) {
         return Calendar.builder()
                 .calendarGroup(calendarGroup)
                 .name(name)
                 .subscriptionUrl(null)
+                .color(color)
                 .build();
     }
 

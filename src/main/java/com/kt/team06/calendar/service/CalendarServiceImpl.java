@@ -51,7 +51,7 @@ public class CalendarServiceImpl implements CalendarService {
         CalendarGroup calendarGroup = calendarGroupRepository.getCalendarGroup(request.calendarGroupId());
         validateCalendarGroupAccess(memberId, calendarGroup);
 
-        Calendar newCalendar = calendarRepository.save(entityMapper.toCalendar(calendarGroup, request.name()));
+        Calendar newCalendar = calendarRepository.save(entityMapper.toCalendar(calendarGroup, request.name(), request.color()));
         calendarGroup.addCalendar(newCalendar);
 
         return new CalendarIdResponse(newCalendar.getId());
