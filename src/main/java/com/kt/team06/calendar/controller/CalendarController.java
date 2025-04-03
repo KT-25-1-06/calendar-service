@@ -19,7 +19,7 @@ public class CalendarController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CalendarIdResponse>> createCalendar(
-        @RequestHeader String memberId,
+        @RequestHeader("x-id") String memberId,
         @RequestBody CalendarCreateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarService.createCalendar(memberId, request)));
@@ -27,7 +27,7 @@ public class CalendarController {
 
     @PutMapping("/{calendarId}")
     public ResponseEntity<ApiResponse<CalendarIdResponse>> updateCalendar(
-        @RequestHeader String memberId,
+        @RequestHeader("x-id") String memberId,
         @PathVariable Long calendarId,
         @RequestBody CalendarUpdateRequest request
     ) {
@@ -38,7 +38,7 @@ public class CalendarController {
 
     @DeleteMapping("/{calendarId}")
     public ResponseEntity<ApiResponse<CalendarIdResponse>> deleteCalendar(
-        @RequestHeader String memberId,
+        @RequestHeader("x-id") String memberId,
         @PathVariable Long calendarId
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarService.deleteCalendar(memberId, calendarId)));
@@ -46,7 +46,7 @@ public class CalendarController {
 
     @GetMapping("/{calendarId}")
     public ResponseEntity<ApiResponse<CalendarDetailResponse>> getCalendarInfo(
-        @RequestHeader String memberId,
+        @RequestHeader("x-id") String memberId,
         @PathVariable Long calendarId
     ) {
         return ResponseEntity.ok(ApiResponse.success(calendarService.getCalendarInfo(memberId, calendarId)));
@@ -54,7 +54,7 @@ public class CalendarController {
 
     @PostMapping("/{calendarId}/subscription")
     public ResponseEntity<ApiResponse<CalendarSubscriptionResponse>> createCalendarSubscription(
-            @RequestHeader String memberId,
+            @RequestHeader("x-id") String memberId,
             @PathVariable Long calendarId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -64,7 +64,7 @@ public class CalendarController {
 
     @DeleteMapping("/{calendarId}/subscription")
     public ResponseEntity<ApiResponse<CalendarSubscriptionResponse>> deleteCalendarSubscription(
-            @RequestHeader String memberId,
+            @RequestHeader("x-id") String memberId,
             @PathVariable Long calendarId
     ) {
         return ResponseEntity.ok(ApiResponse.success(

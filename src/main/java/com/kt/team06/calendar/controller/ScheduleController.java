@@ -17,7 +17,7 @@ public class ScheduleController {
 
     @PostMapping("/{calendarId}/schedules")
     public ResponseEntity<ApiResponse<ScheduleIdResponse>> createSchedule(
-        @RequestHeader String memberId,
+        @RequestHeader("x-id") String memberId,
         @PathVariable Long calendarId,
         @RequestBody ScheduleCreateRequest request
     ) {
@@ -26,7 +26,7 @@ public class ScheduleController {
 
     @PutMapping("/schedules/{scheduleId}")
     public ResponseEntity<ApiResponse<ScheduleIdResponse>> updateSchedule(
-        @RequestHeader String memberId,
+        @RequestHeader("x-id") String memberId,
         @PathVariable Long scheduleId,
         @RequestBody ScheduleUpdateRequest request
     ) {
@@ -35,7 +35,7 @@ public class ScheduleController {
 
     @DeleteMapping("/schedules/{scheduleId}")
     public ResponseEntity<ApiResponse<ScheduleIdResponse>> deleteSchedule(
-        @RequestHeader String memberId,
+        @RequestHeader("x-id") String memberId,
         @PathVariable Long scheduleId
     ) {
         return ResponseEntity.ok(ApiResponse.success(scheduleService.deleteSchedule(memberId, scheduleId)));
